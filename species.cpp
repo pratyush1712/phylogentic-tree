@@ -131,7 +131,7 @@ bool Species::is_sibling(const Species &other) const
     return false;
 }
 
-void Species::add_child(const Species &child)
+void Species::add_child(Species &child)
 {
     this->children.push_back(child);
 }
@@ -139,4 +139,9 @@ void Species::add_child(const Species &child)
 const std::vector<Species> &Species::get_children() const
 {
     return this->children;
+}
+
+bool Species::operator!=(const Species &other) const
+{
+    return this->species_name != other.get_species_name();
 }

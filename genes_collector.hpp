@@ -13,7 +13,7 @@ class genesCollector
     std::set<Gene> &genes;
     std::map<Species, std::set<Gene>> file_to_genes;
     fs::path dir;
-    std::set<Species> species;
+    std::vector<Species> &species;
 
     void process_file(const fs::path &file, const int file_index);
 

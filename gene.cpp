@@ -1,11 +1,6 @@
-#include <string>
-#include <set>
-#include <iostream>
-#include <tuple>
 #include "gene.hpp"
 #include "utils.hpp"
 #include <algorithm>
-#include <iostream>
 
 Gene::Gene(const std::string sequence) : seq(sequence), id(next_id++) {}
 
@@ -32,7 +27,7 @@ int Gene::distance(const Gene &other) const
     return std::min(recursive_distance(G0, G1), recursive_distance(G1, G0));
 }
 
-int Gene::recursive_distance(const std::string &a, const std::string &b) const
+int Gene::recursive_distance(const std::string &a, const std::string &b)
 {
     const int G0left = 0;
     const int G1left = 1;

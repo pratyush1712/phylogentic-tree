@@ -7,13 +7,13 @@
 #include <iostream>
 
 // Score for each common instance of a character
-const int COMMON_COST = 15;
+constexpr int COMMON_COST = 15;
 // Score for difference in number of instances public static final int
-const int DIFF_NUM_COST = 8;
+constexpr int DIFF_NUM_COST = 8;
 // Score for characters appearing only in one gene fragment
-const int ONLY_IN_ONE_COST = 25;
+constexpr int ONLY_IN_ONE_COST = 25;
 // Sliding window minimum match length
-const int MIN_MATCH = 4;
+constexpr int MIN_MATCH = 4;
 
 std::vector<fs::path>
 utils::find_all_files(

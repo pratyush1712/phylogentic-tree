@@ -10,8 +10,9 @@
 #include "utils.hpp"
 #include <set>
 #include <map>
+#include <queue>
 
-genesCollector::genesCollector(const std::string &dir) : dir(dir), species(*(new std::set<Species>())), genes(*(new std::set<Gene>())) {}
+genesCollector::genesCollector(const std::string &dir) : dir(dir), species(*(new std::vector<Species>())), genes(*(new std::set<Gene>())) {}
 int GDists[250][250];
 int SDists[40][40];
 std::map<std::string, int> existing;
@@ -23,9 +24,9 @@ void genesCollector::compute()
                                                                  { return extension == ".dat"; });
     std::atomic<uint64_t> global_index = 0;
 
-    std::set<Gene> genes;
-    std::map<Species, std::set<Gene>> file_to_genes;
-    std::set<Species> species;
+    // std::set<Gene> genes;
+    // std::map<Species, std::set<Gene>> file_to_genes;
+    // std::set<Species> species;
 
     uint64_t file_index;
     while ((file_index = global_index++) < files_to_sweep.size())
@@ -56,7 +57,14 @@ void genesCollector::display()
     {
         for (int j = 0; j < vec_genes.size(); j++)
         {
-            GDists[vec_genes[i].get_id()][vec_genes[j].get_id()] = vec_genes[i].distance(vec_genes[j]);
+            if (i != j && GDists[vec_genes[j].get_id()][vec_genes[i].get_id()] != 0)
+            {
+                GDists[vec_genes[i].get_id()][vec_genes[j].get_id()] = GDists[vec_genes[j].get_id()][vec_genes[i].get_id()];
+            }
+            else
+            {
+                GDists[vec_genes[i].get_id()][vec_genes[j].get_id()] = vec_genes[i].distance(vec_genes[j]);
+            }
             std::cout << GDists[vec_genes[i].get_id()][vec_genes[j].get_id()] << " ";
         }
         std::cout << "// G" << i << std::endl;
@@ -96,9 +104,47 @@ void genesCollector::display()
     {
         for (const auto spec2 : species)
         {
-            std::cout << spec.distance(spec2) << " ";
+            if (spec.species_index != spec2.species_index && SDists[spec2.species_index][spec.species_index] != 0)
+                SDists[spec.species_index][spec2.species_index] = SDists[spec2.species_index][spec.species_index];
+            else
+                SDists[spec.species_index][spec2.species_index] = spec.distance(spec2);
+
+            std::cout << SDists[spec.species_index][spec2.species_index] << " ";
         }
         std::cout << std::endl;
+    }
+    // now computing and creating phylogenetic tree
+    std::cout << std::endl;
+    std::cout << "Phylogenetic Tree:" << std::endl;
+    std::cout << std::endl;
+    Species &root = species[0];
+    std::priority_queue<Edge> queue;
+    for (Species &spec : species)
+    {
+        if (&spec != &root)
+        {
+            queue.emplace(Edge(root, spec));
+        }
+    }
+    // now add all species to the tree
+    std::set<Species *> species_in_tree;
+    species_in_tree.insert(&root);
+    while (!queue.empty())
+    {
+        Edge edge = queue.top();
+        queue.pop();
+        if (species_in_tree.find(&edge.getChild()) == species_in_tree.end())
+        {
+            species_in_tree.insert(&edge.getChild());
+            edge.getParent().add_child(edge.getChild());
+            for (Species &spec : species)
+            {
+                if (species_in_tree.find(&spec) == species_in_tree.end() && &spec != &edge.getChild() && &spec != &edge.getParent() && SDists[spec.species_index][edge.getChild().species_index] != 9999)
+                {
+                    queue.emplace(Edge(edge.getChild(), spec));
+                }
+            }
+        }
     }
 }
 
@@ -110,7 +156,7 @@ void genesCollector::process_file(const fs::path &file, const int file_index)
     std::string contents = buffer.str();
     int index = std::stoi(file.filename().string().substr(1, file.filename().string().size() - 5));
     Species animal(contents, file_index);
-    species.insert(animal);
+    species.emplace_back(animal);
     const auto &genes = animal.get_parsed_genes();
     // sort genes by length and then alphabetically
     std::vector<Gene> vec_genes(genes.begin(), genes.end());

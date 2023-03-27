@@ -18,8 +18,9 @@ public:
     bool operator<(const Species &other) const;
     int distance(const Species &other) const;
     bool is_sibling(const Species &other) const;
-    void add_child(const Species &child);
+    void add_child(Species &child);
     const std::vector<Species> &get_children() const;
+    bool operator!=(const Species &other) const;
 
 private:
     std::string species_name;
