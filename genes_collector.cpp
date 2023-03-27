@@ -11,6 +11,7 @@
 #include <set>
 #include <map>
 #include <queue>
+#include <string>
 
 genesCollector::genesCollector(const std::string &dir) : dir(dir), species(*(new std::vector<Species>())), genes(*(new std::set<Gene>())) {}
 int GDists[250][250];

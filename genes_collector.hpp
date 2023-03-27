@@ -4,6 +4,9 @@
 #include <vector>
 #include <string>
 #include "utils.hpp"
+#include "gene.hpp"
+#include "species.hpp"
+#include "edge.hpp"
 
 namespace fs = std::filesystem;
 
