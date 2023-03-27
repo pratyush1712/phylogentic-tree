@@ -42,8 +42,12 @@ void Species::parse_genes()
         }
 
         std::string gene_sequence = dna.substr(start_pos, end_pos - start_pos);
-        Gene gene(gene_sequence);
-        genes.insert(gene);
+        if (existing.find(gene_sequence) == existing.end())
+        {
+            Gene gene(gene_sequence);
+            existing[gene_sequence] = gene.get_id();
+            genes.insert(gene);
+        }
         start_pos = end_pos + end_delimiter.length();
     }
 }
@@ -78,10 +82,11 @@ int Species::distance(const Species &other) const
     // find the closest gene in the other species
     for (const Gene &gene : this->genes)
     {
+        int gene_id = gene.get_id();
         int min_distance = MAX_DISTANCE;
         for (const Gene &other_gene : other.genes)
         {
-            int distance = gene.distance(other_gene);
+            int distance = GDists[gene_id][other_gene.get_id()];
             if (distance < min_distance)
             {
                 min_distance = distance;
@@ -93,10 +98,11 @@ int Species::distance(const Species &other) const
     int distance_left = 0;
     for (const Gene &gene : other.get_parsed_genes())
     {
+        int gene_id = gene.get_id();
         int min_distance = MAX_DISTANCE;
         for (const Gene &other_gene : this->genes)
         {
-            int distance = gene.distance(other_gene);
+            int distance = GDists[gene_id][other_gene.get_id()];
             if (distance < min_distance)
             {
                 min_distance = distance;
@@ -104,7 +110,9 @@ int Species::distance(const Species &other) const
         }
         distance_left += min_distance;
     }
-    return (distance_left + distance_right) / 2;
+    int final_distance = (distance_left + distance_right) / 2;
+    SDists[this->species_index][other.species_index] = final_distance;
+    return final_distance;
 }
 
 bool Species::is_sibling(const Species &other) const

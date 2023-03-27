@@ -5,6 +5,7 @@
 #include <vector>
 #include "gene.hpp"
 
+extern int SDists[40][40];
 class Species
 {
 public:

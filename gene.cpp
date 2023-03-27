@@ -5,8 +5,14 @@
 #include "gene.hpp"
 #include "utils.hpp"
 #include <algorithm>
+#include <iostream>
 
-Gene::Gene(const std::string sequence) : seq(sequence) {}
+Gene::Gene(const std::string sequence) : seq(sequence), id(next_id++) {}
+
+int Gene::get_id() const
+{
+    return id;
+}
 
 const std::string &Gene::sequence() const
 {
@@ -20,13 +26,13 @@ bool Gene::operator<(const Gene &other) const
 
 int Gene::distance(const Gene &other) const
 {
-    auto [G0, G1] = utils::trimmed_sequences(*this, other);
-    if (G0.sequence().empty() && G1.sequence().empty())
+    auto [G0, G1] = utils::trimmed_sequences(seq, other.sequence());
+    if (G0.empty() && G1.empty())
         return 0;
     return std::min(recursive_distance(G0, G1), recursive_distance(G1, G0));
 }
 
-int Gene::recursive_distance(const Gene &a, const Gene &b) const
+int Gene::recursive_distance(const std::string &a, const std::string &b) const
 {
     const int G0left = 0;
     const int G1left = 1;

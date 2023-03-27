@@ -36,34 +36,34 @@ utils::find_all_files(
                                  std::make_move_iterator(files_to_sweep.end()));
 }
 
-std::pair<Gene, Gene> utils::trimmed_sequences(const Gene &a, const Gene &b)
+std::pair<std::string, std::string> utils::trimmed_sequences(const std::string &a, const std::string &b)
 {
     size_t i = 0;
-    while (i < a.sequence().size() && i < b.sequence().size() && a.sequence()[i] == b.sequence()[i])
+    while (i < a.size() && i < b.size() && a[i] == b[i])
     {
         ++i;
     }
     size_t j = 0;
-    while (j < a.sequence().size() - i && j < b.sequence().size() - i && a.sequence()[a.sequence().size() - j - 1] == b.sequence()[b.sequence().size() - j - 1])
+    while (j < a.size() - i && j < b.size() - i && a[a.size() - j - 1] == b[b.size() - j - 1])
     {
         ++j;
     }
-    Gene first(a.sequence().substr(i, a.sequence().size() - i - j));
-    Gene second(b.sequence().substr(i, b.sequence().size() - i - j));
+    std::string first(a.substr(i, a.size() - i - j));
+    std::string second(b.substr(i, b.size() - i - j));
     return std::make_pair(first, second);
 }
 
-int _calculate_score(const Gene &a, const Gene &b)
+int _calculate_score(const std::string &a, const std::string &b)
 {
-    if (a.sequence() == b.sequence())
+    if (a == b)
         return 0;
     std::vector<char> chars = {'I', 'Y', 'A', 'T'};
     std::map<char, int> a_map;
     std::map<char, int> b_map;
 
-    for (auto &c : a.sequence())
+    for (auto &c : a)
         a_map[c]++;
-    for (auto &c : b.sequence())
+    for (auto &c : b)
         b_map[c]++;
 
     int score = 0;
@@ -81,35 +81,35 @@ int _calculate_score(const Gene &a, const Gene &b)
     return score;
 }
 
-int utils::calculate_score(const Gene &a, const Gene &b)
+int utils::calculate_score(const std::string &a, const std::string &b)
 {
     return std::min(_calculate_score(a, b), _calculate_score(b, a));
 }
 
-std::vector<Gene> utils::split_matches(const Gene &a, const Gene &b)
+std::vector<std::string> utils::split_matches(const std::string &a, const std::string &b)
 {
-    std::vector<Gene> result;
-    if (a.sequence().size() < MIN_MATCH || b.sequence().size() < MIN_MATCH)
+    std::vector<std::string> result;
+    if (a.size() < MIN_MATCH || b.size() < MIN_MATCH)
         return result;
-    for (size_t i = 0; i < a.sequence().size() - MIN_MATCH; ++i)
+    for (size_t i = 0; i < a.size() - MIN_MATCH; ++i)
     {
-        for (size_t j = 0; j < b.sequence().size() - MIN_MATCH; ++j)
+        for (size_t j = 0; j < b.size() - MIN_MATCH; ++j)
         {
-            if (a.sequence().substr(i, MIN_MATCH) == b.sequence().substr(j, MIN_MATCH))
+            if (a.substr(i, MIN_MATCH) == b.substr(j, MIN_MATCH))
             {
-                result.push_back(Gene(a.sequence().substr(0, i))); // G0left
-                result.push_back(Gene(b.sequence().substr(0, j))); // G1left
+                result.push_back(a.substr(0, i)); // G0left
+                result.push_back(b.substr(0, j)); // G1left
                 // now expand the match to as long as possible
                 size_t k = i + MIN_MATCH;
                 size_t l = j + MIN_MATCH;
-                while (k < a.sequence().size() && l < b.sequence().size() && a.sequence()[k] == b.sequence()[l])
+                while (k < a.size() && l < b.size() && a[k] == b[l])
                 {
                     ++k;
                     ++l;
                 }
                 // now push the unmatched part of G0 and G1
-                result.push_back(Gene(a.sequence().substr(k))); // G0right
-                result.push_back(Gene(b.sequence().substr(l))); // G1right
+                result.push_back(a.substr(k)); // G0right
+                result.push_back(b.substr(l)); // G1right
                 return result;
             }
         }

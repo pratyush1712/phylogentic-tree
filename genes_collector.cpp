@@ -11,7 +11,11 @@
 #include <set>
 #include <map>
 
-genesCollector::genesCollector(const std::string &dir) : dir(dir) {}
+genesCollector::genesCollector(const std::string &dir) : dir(dir), species(*(new std::set<Species>())), genes(*(new std::set<Gene>())) {}
+int GDists[250][250];
+int SDists[40][40];
+std::map<std::string, int> existing;
+int Gene::next_id = -1;
 
 void genesCollector::compute()
 {
@@ -38,7 +42,7 @@ void genesCollector::display()
     int gene_index = 0;
     for (const auto &gene : vec_genes)
     {
-        std::cout << "G" << gene_index << "=" << gene.sequence() << std::endl;
+        std::cout << "G" << gene_index << "=" << gene.sequence().c_str() << std::endl;
         gene_index++;
     }
     std::cout << std::endl;
@@ -52,9 +56,10 @@ void genesCollector::display()
     {
         for (int j = 0; j < vec_genes.size(); j++)
         {
-            std::cout << vec_genes[i].distance(vec_genes[j]) << " ";
+            GDists[vec_genes[i].get_id()][vec_genes[j].get_id()] = vec_genes[i].distance(vec_genes[j]);
+            std::cout << GDists[vec_genes[i].get_id()][vec_genes[j].get_id()] << " ";
         }
-        std::cout << std::endl;
+        std::cout << "// G" << i << std::endl;
     }
 
     std::cout << std::endl;
@@ -97,7 +102,7 @@ void genesCollector::display()
     }
 }
 
-void genesCollector::process_file(fs::path &file, int file_index)
+void genesCollector::process_file(const fs::path &file, const int file_index)
 {
     std::ifstream fin(file);
     std::stringstream buffer;
