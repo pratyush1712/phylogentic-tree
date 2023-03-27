@@ -53,35 +53,24 @@ std::pair<Gene, Gene> utils::trimmed_sequences(const Gene &a, const Gene &b)
     return std::make_pair(first, second);
 }
 
-int utils::calculate_score(const Gene &a, const Gene &b)
+int _calculate_score(const Gene &a, const Gene &b)
 {
     if (a.sequence() == b.sequence())
         return 0;
     std::vector<char> chars = {'I', 'Y', 'A', 'T'};
     std::map<char, int> a_map;
     std::map<char, int> b_map;
-    for (auto &c : chars)
-    {
-        a_map[c] = 0;
-        b_map[c] = 0;
-    }
 
     for (auto &c : a.sequence())
-    {
         a_map[c]++;
-    }
     for (auto &c : b.sequence())
-    {
         b_map[c]++;
-    }
 
     int score = 0;
     for (auto &c : chars)
     {
         if (a_map[c] == 0 || b_map[c] == 0)
-        {
-            score += (a_map[c] + b_map[c]) * ONLY_IN_ONE_COST;
-        }
+            score += std::max(a_map[c], b_map[c]) * ONLY_IN_ONE_COST;
         else
         {
             int common = std::min(a_map[c], b_map[c]);
@@ -90,6 +79,11 @@ int utils::calculate_score(const Gene &a, const Gene &b)
         }
     }
     return score;
+}
+
+int utils::calculate_score(const Gene &a, const Gene &b)
+{
+    return std::min(_calculate_score(a, b), _calculate_score(b, a));
 }
 
 std::vector<Gene> utils::split_matches(const Gene &a, const Gene &b)
