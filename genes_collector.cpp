@@ -118,7 +118,8 @@ void genesCollector::display()
     std::cout << std::endl;
     std::cout << "Phylogenetic Tree:" << std::endl;
     std::cout << std::endl;
-    Species &root = species[0];
+    Species &root = species[29];
+    int num_species = species.size();
     std::priority_queue<Edge> queue;
     for (Species &spec : species)
     {
@@ -127,26 +128,30 @@ void genesCollector::display()
             queue.emplace(Edge(root, spec));
         }
     }
-    // now add all species to the tree
-    std::set<Species *> species_in_tree;
-    species_in_tree.insert(&root);
-    while (!queue.empty())
+
+    std::set<Species> species_in_tree;
+    species_in_tree.insert(root);
+    while (!queue.empty() && num_species > 1)
     {
         Edge edge = queue.top();
         queue.pop();
-        if (species_in_tree.find(&edge.getChild()) == species_in_tree.end())
+        if (species_in_tree.find(edge.getChild()) == species_in_tree.end())
         {
-            species_in_tree.insert(&edge.getChild());
+            std::cout << num_species << std::endl;
+            species_in_tree.insert(edge.getChild());
+            num_species--;
             edge.getParent().add_child(edge.getChild());
             for (Species &spec : species)
             {
-                if (species_in_tree.find(&spec) == species_in_tree.end() && &spec != &edge.getChild() && &spec != &edge.getParent() && SDists[spec.species_index][edge.getChild().species_index] != 9999)
+                if (species_in_tree.find(spec) == species_in_tree.end() && spec != edge.getChild() && spec != edge.getParent() && SDists[spec.species_index][edge.getChild().species_index] != 9999)
                 {
                     queue.emplace(Edge(edge.getChild(), spec));
                 }
             }
         }
     }
+    // now print the tree
+    root.print_tree(0);
 }
 
 void genesCollector::process_file(const fs::path &file, const int file_index)

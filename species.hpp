@@ -21,6 +21,7 @@ public:
     void add_child(Species &child);
     const std::vector<Species> &get_children() const;
     bool operator!=(const Species &other) const;
+    void print_tree(const int &depth) const;
 
 private:
     std::string species_name;

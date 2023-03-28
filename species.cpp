@@ -145,3 +145,16 @@ bool Species::operator!=(const Species &other) const
 {
     return this->species_name != other.get_species_name();
 }
+
+void Species::print_tree(const int &depth) const
+{
+    for (int i = 0; i < depth; i++)
+    {
+        std::cout << " ";
+    }
+    std::cout << this->species_name << std::endl;
+    for (const Species &child : this->children)
+    {
+        child.print_tree(depth + 1);
+    }
+}
