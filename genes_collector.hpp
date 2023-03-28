@@ -7,6 +7,7 @@
 #include "gene.hpp"
 #include "species.hpp"
 #include "edge.hpp"
+#include "tree.cpp"
 
 namespace fs = std::filesystem;
 
@@ -23,5 +24,5 @@ class genesCollector
 public:
     genesCollector(const std::string &dir);
     void compute();
-    void display();
+    void display(const int root_index);
 };

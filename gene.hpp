@@ -39,6 +39,6 @@ private:
         return score_left + score_right;
     }
 };
-extern int GDists[250][250];
+extern int GeneMemo[250][250];
 extern std::map<std::string, int> existing;
 #endif

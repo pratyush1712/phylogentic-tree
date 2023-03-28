@@ -14,8 +14,8 @@
 #include <string>
 
 genesCollector::genesCollector(const std::string &dir) : dir(dir), species(*(new std::vector<Species>())), genes(*(new std::set<Gene>())) {}
-int GDists[250][250];
-int SDists[40][40];
+int GeneMemo[250][250];
+int SpeciesMemo[40][40];
 std::map<std::string, int> existing;
 int Gene::next_id = -1;
 
@@ -36,7 +36,7 @@ void genesCollector::compute()
     }
 }
 
-void genesCollector::display()
+void genesCollector::display(const int root_index)
 {
     // sort the genes by length and then alphabetically
     std::vector<Gene> vec_genes(genes.begin(), genes.end());
@@ -58,15 +58,15 @@ void genesCollector::display()
     {
         for (int j = 0; j < vec_genes.size(); j++)
         {
-            if (i != j && GDists[vec_genes[j].get_id()][vec_genes[i].get_id()] != 0)
+            if (i != j && GeneMemo[vec_genes[j].get_id()][vec_genes[i].get_id()] != 0)
             {
-                GDists[vec_genes[i].get_id()][vec_genes[j].get_id()] = GDists[vec_genes[j].get_id()][vec_genes[i].get_id()];
+                GeneMemo[vec_genes[i].get_id()][vec_genes[j].get_id()] = GeneMemo[vec_genes[j].get_id()][vec_genes[i].get_id()];
             }
             else
             {
-                GDists[vec_genes[i].get_id()][vec_genes[j].get_id()] = vec_genes[i].distance(vec_genes[j]);
+                GeneMemo[vec_genes[i].get_id()][vec_genes[j].get_id()] = vec_genes[i].distance(vec_genes[j]);
             }
-            std::cout << GDists[vec_genes[i].get_id()][vec_genes[j].get_id()] << " ";
+            std::cout << GeneMemo[vec_genes[i].get_id()][vec_genes[j].get_id()] << " ";
         }
         std::cout << "// G" << i << std::endl;
     }
@@ -105,53 +105,18 @@ void genesCollector::display()
     {
         for (const auto spec2 : species)
         {
-            if (spec.species_index != spec2.species_index && SDists[spec2.species_index][spec.species_index] != 0)
-                SDists[spec.species_index][spec2.species_index] = SDists[spec2.species_index][spec.species_index];
+            if (spec.species_index != spec2.species_index && SpeciesMemo[spec2.species_index][spec.species_index] != 0)
+                SpeciesMemo[spec.species_index][spec2.species_index] = SpeciesMemo[spec2.species_index][spec.species_index];
             else
-                SDists[spec.species_index][spec2.species_index] = spec.distance(spec2);
+                SpeciesMemo[spec.species_index][spec2.species_index] = spec.distance(spec2);
 
-            std::cout << SDists[spec.species_index][spec2.species_index] << " ";
+            std::cout << SpeciesMemo[spec.species_index][spec2.species_index] << " ";
         }
         std::cout << std::endl;
     }
-    // now computing and creating phylogenetic tree
-    std::cout << std::endl;
-    std::cout << "Phylogenetic Tree:" << std::endl;
-    std::cout << std::endl;
-    Species &root = species[29];
-    int num_species = species.size();
-    std::priority_queue<Edge> queue;
-    for (Species &spec : species)
-    {
-        if (&spec != &root)
-        {
-            queue.emplace(Edge(root, spec));
-        }
-    }
-
-    std::set<Species> species_in_tree;
-    species_in_tree.insert(root);
-    while (!queue.empty() && num_species > 1)
-    {
-        Edge edge = queue.top();
-        queue.pop();
-        if (species_in_tree.find(edge.getChild()) == species_in_tree.end())
-        {
-            std::cout << num_species << std::endl;
-            species_in_tree.insert(edge.getChild());
-            num_species--;
-            edge.getParent().add_child(edge.getChild());
-            for (Species &spec : species)
-            {
-                if (species_in_tree.find(spec) == species_in_tree.end() && spec != edge.getChild() && spec != edge.getParent() && SDists[spec.species_index][edge.getChild().species_index] != 9999)
-                {
-                    queue.emplace(Edge(edge.getChild(), spec));
-                }
-            }
-        }
-    }
-    // now print the tree
-    root.print_tree(0);
+    Tree tree(species);
+    tree.create_phylogenetic_tree(root_index);
+    tree.print_phylogenetic_tree();
 }
 
 void genesCollector::process_file(const fs::path &file, const int file_index)
@@ -161,7 +126,7 @@ void genesCollector::process_file(const fs::path &file, const int file_index)
     buffer << fin.rdbuf();
     std::string contents = buffer.str();
     int index = std::stoi(file.filename().string().substr(1, file.filename().string().size() - 5));
-    Species animal(contents, file_index);
+    Species animal(contents, index);
     species.emplace_back(animal);
     const auto &genes = animal.get_parsed_genes();
     // sort genes by length and then alphabetically

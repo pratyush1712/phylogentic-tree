@@ -2,7 +2,7 @@
 
 Edge::Edge(Species &parent, Species &child) : parent(parent), child(child)
 {
-    distance = SDists[parent.species_index][child.species_index];
+    distance = SpeciesMemo[parent.species_index][child.species_index];
 }
 
 Edge::Edge(const Edge &other) : parent(other.parent), child(other.child) {}

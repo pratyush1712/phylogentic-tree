@@ -1,0 +1,3 @@
+/mnt/d/cs4414/a3/CMakeFiles/rebuild_cache.dir
+/mnt/d/cs4414/a3/CMakeFiles/edit_cache.dir
+/mnt/d/cs4414/a3/CMakeFiles/ptree.dir

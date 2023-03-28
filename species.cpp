@@ -86,7 +86,7 @@ int Species::distance(const Species &other) const
         int min_distance = MAX_DISTANCE;
         for (const Gene &other_gene : other.genes)
         {
-            int distance = GDists[gene_id][other_gene.get_id()];
+            int distance = GeneMemo[gene_id][other_gene.get_id()];
             if (distance < min_distance)
             {
                 min_distance = distance;
@@ -102,7 +102,7 @@ int Species::distance(const Species &other) const
         int min_distance = MAX_DISTANCE;
         for (const Gene &other_gene : this->genes)
         {
-            int distance = GDists[gene_id][other_gene.get_id()];
+            int distance = GeneMemo[gene_id][other_gene.get_id()];
             if (distance < min_distance)
             {
                 min_distance = distance;
@@ -111,7 +111,7 @@ int Species::distance(const Species &other) const
         distance_left += min_distance;
     }
     int final_distance = (distance_left + distance_right) / 2;
-    SDists[this->species_index][other.species_index] = final_distance;
+    SpeciesMemo[this->species_index][other.species_index] = final_distance;
     return final_distance;
 }
 
@@ -133,10 +133,9 @@ bool Species::is_sibling(const Species &other) const
 
 void Species::add_child(Species &child)
 {
-    this->children.push_back(child);
 }
 
-const std::vector<Species> &Species::get_children() const
+const std::vector<Species *> &Species::get_children() const
 {
     return this->children;
 }
@@ -146,15 +145,22 @@ bool Species::operator!=(const Species &other) const
     return this->species_name != other.get_species_name();
 }
 
-void Species::print_tree(const int &depth) const
+void Species::print_children(int indent_level) const
 {
-    for (int i = 0; i < depth; i++)
+    std::string indent(indent_level, '\t');
+    std::cout << indent << "- Species " << species_index << std::endl;
+    for (const auto &child : children)
     {
-        std::cout << " ";
+        child->print_children(indent_level + 1);
     }
-    std::cout << this->species_name << std::endl;
-    for (const Species &child : this->children)
+}
+
+void Species::print_tree(int indent_level) const
+{
+    std::string indent(indent_level, '\t');
+    std::cout << indent << species_name << std::endl;
+    for (const auto &child : children)
     {
-        child.print_tree(depth + 1);
+        child->print_tree(indent_level + 1);
     }
 }

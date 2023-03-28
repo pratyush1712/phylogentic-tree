@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/ptree.dir/main.cpp.o CMakeFiles/ptree.dir/genes_collector.cpp.o CMakeFiles/ptree.dir/species.cpp.o CMakeFiles/ptree.dir/gene.cpp.o CMakeFiles/ptree.dir/utils.cpp.o CMakeFiles/ptree.dir/edge.cpp.o  -o ptree  -lpthread -lstdc++fs 

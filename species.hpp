@@ -5,7 +5,7 @@
 #include <vector>
 #include "gene.hpp"
 
-extern int SDists[40][40];
+extern int SpeciesMemo[40][40];
 class Species
 {
 public:
@@ -19,9 +19,11 @@ public:
     int distance(const Species &other) const;
     bool is_sibling(const Species &other) const;
     void add_child(Species &child);
-    const std::vector<Species> &get_children() const;
+    const std::vector<Species *> &get_children() const;
     bool operator!=(const Species &other) const;
-    void print_tree(const int &depth) const;
+    void print_tree(int indent_level) const;
+    void print_children(int indent_level) const;
+    std::vector<Species *> children;
 
 private:
     std::string species_name;
@@ -29,7 +31,6 @@ private:
     std::string image_file_name;
     std::string dna;
     std::set<Gene> genes;
-    std::vector<Species> children;
 };
 
 #endif
